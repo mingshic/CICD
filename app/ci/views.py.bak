@@ -1,0 +1,13 @@
+#encoding:utf-8  
+#!/usr/bin/env python
+
+from flask import Flask, render_template
+from . import ci
+from ..utils import login_request
+
+
+
+@ci.route('/ci', methods=['POST','GET'])
+@login_request.check_login
+def ci(*args, **kw):
+    return render_template("ci.html", **locals() )

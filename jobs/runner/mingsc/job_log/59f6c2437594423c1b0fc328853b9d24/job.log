@@ -1,0 +1,24 @@
+Cloning into 'test'...
+$ uname -acommand_info_split_pointLinux ubuntu 4.4.0-87-generic #110-Ubuntu SMP Tue Jul 18 12:55:35 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
+$ uptime && datecommand_info_split_point06:07:55 up 11 min,  1 user,  load average: 0.07, 0.07, 0.02
+Thu Jun  7 06:07:55 EDT 2018
+$ df -hcommand_info_split_pointFilesystem                   Size  Used Avail Use% Mounted on
+udev                         2.2G     0  2.2G   0% /dev
+tmpfs                        455M  7.0M  448M   2% /run
+/dev/mapper/ubuntu--vg-root   35G   14G   20G  40% /
+tmpfs                        2.3G  132K  2.3G   1% /dev/shm
+tmpfs                        5.0M  4.0K  5.0M   1% /run/lock
+tmpfs                        2.3G     0  2.3G   0% /sys/fs/cgroup
+/dev/sda1                    472M   62M  386M  14% /boot
+tmpfs                        455M   16K  455M   1% /run/user/123
+tmpfs                        455M     0  455M   0% /run/user/1000
+$ python test.pycommand_info_split_point11111111111111222222222222222333333333333333
+11111111111111222222222222222333333333333333
+11111111111111222222222222222333333333333333
+11111111111111222222222222222333333333333333
+11111111111111222222222222222333333333333333
+11111111111111222222222222222333333333333333
+11111111111111222222222222222333333333333333
+11111111111111222222222222222333333333333333
+11111111111111222222222222222333333333333333
+11111111111111222222222222222333333333333333

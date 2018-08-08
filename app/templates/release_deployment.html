@@ -1,0 +1,392 @@
+{% extends "base.html" %}
+{% block title %}Deploy{% endblock %}
+
+{% block head %}
+    {% block styles %}
+        {{ super() }}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/deployment.css') }}">
+    {% endblock styles %}
+    {% block scripts %}
+        {{ super() }}
+        <script type="text/javascript" src="{{ url_for('static', filename='js/deployment.js') }}"></script>
+    {% endblock scripts %}
+    <style>
+        .btn {
+            font-weight: 1000;
+        }
+        .form-control {
+            width: 80%;
+        }
+        body {
+            background-color: lavender;
+        }
+
+        .col-sm-12 {
+            width: 56%
+        }
+{#        iden_com {    width: 100px;    height:100px;    border-top:10px solid  rgba(200,200,200,0.25);    border-right:10px solid  rgba(200,200,200,0.5);    border-bottom: 10px solid  rgba(200,200,200,0.75);    border-left:10px solid  rgba(200,200,200,1);}#}
+
+    </style>
+
+{% endblock head %}
+
+{% block content %}
+    <div>
+        <div class="form-horizontal">
+            <div class="form-group">
+                <div id="select_hostSection" ondblclick="doubleclick_hostlist()" class="col-sm-4">
+                    {#                    <label class="col-sm-2 control-label">目标机器</label>#}
+                    {#                    <select id="select_identity" class="col-sm-2 form-control">#}
+                    {#                    </select>#}
+                    <label for="classify" class="col-sm-1 control-label"></label>
+                    <div class="col-sm-3 text-right">
+                        <select class="selectpicker form-control" data-live-search="true" id="select_identity">
+                        </select>
+                    </div>
+                </div>
+
+
+
+                <div id="select_commandpSection" ondblclick="doubleclick_commandPara()" class="col-sm-4">
+                    {#                    <label class="col-sm-2 control-label">执行场景</label>#}
+                    {#                <select id="select_scene" class="form-control">#}
+                    {#                </select>#}
+                    <label for="classify" class="control-label"></label>
+                    <div class="col-sm-3">
+                        <select class="selectpicker form-control" data-live-search="true" id="select_scene">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {#        <HR style="FILTER: progid:DXImageTransform.Microsoft.Shadow(color:#987cb9,direction:145,strength:15)" width="80%" color=#987cb9 SIZE=10>#}
+    {#    <HR style="FILTER: alpha(opacity=100,finishopacity=0,style=2)" width="80%" color=#987cb9 SIZE=10>#}
+    <hr width=80% size=3 color=#5151A2 style="border:double white">
+    <div class="container-fluid">
+        <div class="col-sm-2">
+            <div id="identity_form" class="iden_com">
+            </div>
+        </div>
+        <div class="col-sm-2"></div>
+        <div class="col-sm-2">
+            <div id="commandParameter_form" class="iden_com">
+            </div>
+        </div>
+    </div>
+
+    <div>
+    <hr width=60% size=3 color=#5151A2 style="border:double white">
+    <div class="col-sm-12 text-right">
+        <button type="submit" class="btn btn-primary" onclick="run_ansibleHost_commandPara()">Run</button>
+    </div>
+    </div>
+
+    <script type="text/javascript">
+        function doubleclick_hostlist(){
+            document.getElementById("identity_form").innerHTML='<div class="form-inline">' +
+                '<textarea class="form-control" id="hostlist" name="hostlist" placeholder="" cols="50" rows="10">' +
+                '</textarea>' +
+                '<button class="btn btn-primary" onclick="add_identity_hostlist()">add</button>' +
+                '</div>';
+        }
+
+
+        function add_identity_hostlist(){
+            var response_data = []
+            data = document.getElementById("hostlist").value
+            $.post('http://192.168.52.143:5000/release',
+                {
+                    hostlist: data,
+                    item: "1"
+                },
+                function () {
+                    {#                    identity = data.split("\n")[0]#}
+                    identity, hostlist, latest_id = loadselect_identity()
+                    response_data.push(identity)
+                    response_data.push(hostlist)
+                    identity_id = "identity_"+latest_id
+                    var obj = document.getElementById("select_identity");
+                    for (i=0;i<obj.length;i++) {
+                        if (obj[i].value == identity_id) {
+{#                            obj[i].selected = true;#}
+                            $('#select_identity').selectpicker('refresh');
+                            $('#select_identity').selectpicker('val', obj[i].value);
+                            loadsingle_identity(response_data, obj[i].value, "#identity_form")
+                        }
+                    }
+                })
+        }
+
+        function update_identity_hostlist(obj, if_update){
+            data = "";
+            if (if_update==true) {
+                var before_id = $(obj).prev().attr("id");
+                data = document.getElementById(before_id).value;
+            }
+            else if (if_update==false) {
+                var before_id = $(obj).prev().prev().prev().attr("id");
+                data = document.getElementById(before_id).value;
+            }
+            $.post('http://192.168.52.143:5000/release',
+                {
+                    if_update: if_update,
+                    id: before_id,
+                    hostlist: data,
+                    item: "2"
+                },
+                function (data) {
+                    var obj_1 = document.getElementById("select_identity");
+                    {#                    identity, hostlist, latest_id = #}
+                    console.log(obj_1)
+                    for (var i=0;i<obj_1.length;i++) {
+                        if (obj_1[i].value == before_id) {
+                            loadselect_identity()
+                            try {
+                                $('#select_identity').selectpicker('refresh');
+                                $('#select_identity').selectpicker('val', obj_1[i].value);
+                            }
+
+                            catch(err) {
+                                console.log("have already delete")
+                            }
+{#                            obj_1[i].selected = true;#}
+                        }
+                    }
+
+
+                    {#                    loadsingle_identity(response_data, obj[i].value, "#identity_form")#}
+                })
+        }
+
+
+        function doubleclick_commandPara(){
+            document.getElementById("commandParameter_form").innerHTML='<div class="form-inline">' +
+                '<input class="form-control" id="scene_input" name="command_para">' +
+                '<textarea class="form-control" id="command_parameter" name="command_para" placeholder="" cols="50" rows="10">' +
+                '</textarea>' +
+                '<button class="btn btn-primary" onclick="add_command_parameter()">add</button>' +
+                '</div>';
+        }
+
+
+        function add_command_parameter(){
+            var response_data = []
+            scene_value = document.getElementById("scene_input").value
+            data = document.getElementById("command_parameter").value
+            $.post('http://192.168.52.143:5000/release',
+                {
+                    scene: scene_value,
+                    command_para: data,
+                    item: "1"
+                },
+                function () {
+                    scene, command_para, latest_id = loadselect_scene()
+                    response_data.push(scene)
+                    response_data.push(command_para)
+                    identity_id = "scene_"+latest_id
+                    var obj = document.getElementById("select_scene");
+                    for (i=0;i<obj.length;i++) {
+                        if (obj[i].value == identity_id) {
+{#                            obj[i].selected = true;#}
+                            $('#select_scene').selectpicker('refresh');
+                            $('#select_scene').selectpicker('val', obj[i].value);
+                            loadsingle_scene(response_data, obj[i].value, "#commandParameter_form")
+                        }
+                    }
+                })
+        }
+
+        function update_command_parameter(obj, if_update){
+            data = "";
+            if (if_update==true) {
+                var before_id = $(obj).prev().attr("id");
+                data = document.getElementById(before_id).value;
+            }
+            else if (if_update==false) {
+                var before_id = $(obj).prev().prev().prev().attr("id");
+                data = document.getElementById(before_id).value;
+            }
+{#            scene_value = $("#scene_input").text()#}
+            scene_value = document.getElementById("scene_input").value
+            $.post('http://192.168.52.143:5000/release',
+                {
+                    if_update: if_update,
+                    scene: scene_value,
+                    id: before_id,
+                    command_para: data,
+                    item: "2"
+                },
+                function (data) {
+                    var obj_1 = document.getElementById("select_scene");
+                    {#                    identity, hostlist, latest_id = #}
+                    for (var i=0;i<obj_1.length;i++) {
+                        if (obj_1[i].value == before_id) {
+                            loadselect_scene()
+                            try {
+                                $('#select_scene').selectpicker('refresh');
+                                $('#select_scene').selectpicker('val', obj_1[i].value);
+                            }
+                            catch(err) {
+                                console.log("have already delete")
+                            }
+{#                            obj_1[i].selected = true;#}
+                        }
+                    }
+                })
+        }
+
+        {#是否显示        #}
+        {#        function display_hostlist() {#}
+        {#            document.getElementById('hostlist_form').style.display='none';#}
+        {#        }#}
+        {#        function command_parameter() {#}
+        {#            document.getElementById('command_parameter_form').style.display='none';#}
+        {#        }#}
+        {#        var hostlist_info = document.getElementById('hostlist');#}
+        {#        var command_para_info = document.getElementById('command_parameter')#}
+
+
+        function edit_hostlist(obj){
+            var prev_before_id = $(obj).prev().prev().attr("id")
+            var hostlist_info = document.getElementById(prev_before_id);
+            hostlist_info.disabled = false;
+        }
+        function edit_command_para(obj){
+            var prev_before_id = $(obj).prev().prev().attr("id")
+            var command_para_info = document.getElementById(prev_before_id);
+            command_para_info.disabled = false;
+        }
+        function selectOnchang(obj){
+            var value = obj.options[obj.selectedIndex].value;
+            alert(value);
+        }
+
+        window.onunload = loadData();
+        function loadData() {
+            loadselect_identity();
+            loadselect_scene();
+
+        }
+
+        function loadselect_identity() {
+            latest = ""
+            $.ajax({
+                url: 'http://192.168.52.143:5000/hostlist',
+                async: false,
+                type: "GET",
+                success: function (data) {
+                    latest = data.pop()
+                    identity = data.pop()
+                    hostlist = data.pop()
+                    var select = $("#select_identity");
+                    select.empty()
+                    select.append("<option>目标机器</option>")
+                    for (var i = 0; i < data.length; i++) {
+                        select.append("<option value=identity_" + data[i][2] + ">" + data[i][0] + "</option>")
+                    }
+                }
+            })
+            return identity, hostlist, latest;
+        }
+
+        function loadselect_scene() {
+            latest = ""
+            $.ajax({
+                url: 'http://192.168.52.143:5000/commandPara',
+                async: false,
+                type: "GET",
+                success: function (data) {
+                    latest = data.pop()
+                    scene = data.pop()
+                    command_para = data.pop()
+                    var select = $("#select_scene");
+                    select.empty()
+                    select.append("<option>执行场景</option>")
+                    for (var i = 0; i < data.length; i++) {
+                        select.append("<option value=scene_" + data[i][2] + ">" + data[i][0] + "</option>")
+                    }
+                }
+            })
+            return scene, command_para, latest;
+        }
+        $(document).ready(function () {
+            $("#select_identity").change(function () {
+                var item = $(this).val();
+                console.log(item)
+                $.post('http://192.168.52.143:5000/hostlist',
+                    {
+                        item: item
+                    },
+                    function (data) {
+                        loadsingle_identity(data, item, "#identity_form")
+
+                    }
+                )
+            })
+        })
+
+        function loadsingle_identity(data, item, select_id) {
+            var identity = $(select_id)
+            console.log(data,item,select_id)
+            identity.empty()
+            identity.append('<div class="form-inline">' +
+                '<textarea class="form-control" id='+ item +' name="hostlist" placeholder="" cols="50" rows="12" disabled="disabled">' + data[0] + "\n" +data[1] +
+                '</textarea>' +
+                '<button class="btn btn-primary" onclick="update_identity_hostlist(this, true)">update</button>' +
+                '<button type="button" class="btn btn-primary" onclick="edit_hostlist(this)">editor</button>' +
+                '<button class="btn btn-primary" onclick="update_identity_hostlist(this, false)">delete</button>' +
+                '</div>')
+
+        }
+
+        $(document).ready(function () {
+            $("#select_scene").change(function () {
+                var item = $(this).val();
+                console.log(item)
+                $.post('http://192.168.52.143:5000/commandPara',
+                    {
+                        item: item
+                    },
+                    function (data) {
+                        loadsingle_scene(data, item, "#commandParameter_form")
+                    }
+                )
+            })
+        })
+
+
+        function loadsingle_scene(data, item, select_id) {
+            var identity = $(select_id)
+            console.log(data)
+            identity.empty()
+            identity.append('<div class="form-inline">' +
+                '<input class="form-control" id="scene_input" name="command_para" value='+ data[0] +'>' +
+                '<textarea class="form-control" id='+ item +' name="command_para" placeholder="" cols="50" rows="10" disabled="disabled">' + data[1] +
+                '</textarea>' +
+                '<button class="btn btn-primary" onclick="update_command_parameter(this, true)">update</button>' +
+                '<button type="button" class="btn btn-primary" onclick="edit_command_para(this)">editor</button>' +
+                '<button class="btn btn-primary" onclick="update_command_parameter(this, false)">delete</button>' +
+                '</div>')
+
+        }
+
+
+
+        function run_ansibleHost_commandPara() {
+            hostlist = $("textarea[name='hostlist']").val()
+            command_para = $("textarea[name='command_para']").val()
+            $.post('http://192.168.52.143:5000/deployment',
+                {
+                    hostlist: hostlist,
+                    command_para: command_para
+                },
+                function (data) {
+                    console.log(data)
+                })
+        }
+    </script>
+{% endblock %}
+
+

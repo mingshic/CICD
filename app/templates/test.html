@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Bootstrap 模态框（Modal）</title>
+    <link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<!-- 按钮触发模态框 -->
+<button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+    点击
+</button>
+<br><br>
+<div class="vv">你想要获取的值</div>
+
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    ×
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    模态框（Modal）标题
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="vv-1"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                </button>
+                <button type="button" class="btn btn-primary" id='bt'>
+                    提交更改
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+
+
+</div>
+
+<script type="text/javascript">
+
+    $('#myModal').on('show.bs.modal', function () {
+{#        var z=$('.vv').text()#}
+        alert('点击了 按钮 ，这时候把获取到的value值 嵌入到后来的弹出框中')
+{#        $('.vv-1').text(z)#}
+    })
+
+
+    $('#myModal').on('hide.bs.modal', function () {
+        alert('消失隐藏 了 ')
+    })
+
+    $('#bt').click(function(){
+        alert('点击了确定 触发事件')
+        $('#myModal').modal('hide')
+    })
+</script>
+
+<input type="button" id="submit"  value="弹出模态框" onclick="check()">
+
+<!--模态框开始-->
+<!-- 模态框（Modal） -->
+<div class="modal fade"  id="myModal" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button"  class="close"  data-dismiss="modal"  aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">请选择出库类型</h4>
+            </div>
+            <div class="modal-body">
+                出库类型是：
+                <select id="select"  onchange="goUrl(this.selectedIndex)">
+                    <option value="0">请选择</option>
+                    <option value="借用">借用</option>
+                    <option value="领用">领用</option>
+                    <option value="赠与">赠与</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <div id="thdiv"  align="left">你选择的出库类型是：<p></p></div>
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function check() {
+        //加载模态框
+        $('#myModal').modal()
+</script>
+
+</body>
+</html>

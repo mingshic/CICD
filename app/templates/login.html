@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/reset.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <title>Shareit</title>
+</head>
+
+<body>
+    <div class="slideshow">
+        <div class="slideshow-image" style="background-image: url('static/images/1.jpg')"></div>
+        <div class="slideshow-image" style="background-image: url('static/images/2.jpg')"></div>
+        <div class="slideshow-image" style="background-image: url('static/images/3.jpg')"></div>
+        <div class="slideshow-image" style="background-image: url('static/images/4.jpg')"></div>
+        <!-- <div class="slideshow-image" style="background-image: url('{{ url_for('static', filename='images/1.jpg') }}')"></div> -->
+    </div>
+    <div class="wrapper">
+        <div class="login-info">欢迎登录</div>
+        <hr>
+        <form action="" method="POST" id="login-form">
+            <div>
+                <input type="text" name="username" class="username" placeholder="用户名" autocomplete="off">
+            </div>
+            <div>
+                <input type="password" name="password" class="password" id="password" placeholder="密码" oncontextmenu="return false" onpaste="return false">
+            </div>
+            <button id="submit" type="submit">立即登录</button>
+        </form>
+        <div class="messages">
+            
+        </div>
+    </div>
+
+<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/login.js') }}"?id=337777></script>
+</body>
+</html>

@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+
+{% block title %}machine{% endblock %}
+
+{% block head %}
+    {% block styles %}
+        {{ super() }}
+        <style>
+            .btn {
+                font-weight: 1000;
+            }
+            .form-control {
+                width: 80%;
+            }
+            body {
+                background-color: lavender;
+            }
+
+            .modal-content {
+                border-radius: 56px;
+            }
+        </style>
+    {% endblock styles %}
+    {% block scripts %}
+        {{ super() }}
+    {% endblock scripts %}
+
+{% endblock head %}
+
+{% block content %}
+
+    <div class="table-title"></div>
+    <table class="table table-hover table-bordered table-condensed table-striped nowrap-table" id="editable">
+        <thead class="table-bordered">
+        <tr>
+            <th >别名</th>
+            <th>主机名</th>
+            <th>IP</th>
+            <th>操作系统</th>
+            <th>服务和业务</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for single in resource %}
+            <tr>
+                <td width="10%">
+                    <a id="change_alias" type="button" style="cursor: pointer" onclick="div_show(this)">
+{#                    <span style="cursor: pointer">#}
+                    <i class="glyphicon glyphicon-pencil">
+                    </i> 修改
+{#                    </span>#}
+                    </a> {{ single[2] }}
+                    <div id='display_{{ single[1] }}' style="color: red; display:none" >
+                        <form method="post">
+                            <input id="alias_{{ single[1] }}" class="form-inline" value="">
+                            <button class="btn btn-primary" type="submit" onclick="change_name(this)">确认</button>
+                        </form>
+                    </div></td>
+                <td width="5%">{{ single[0]["HOST"]["hostname"] }}</td>
+                <td width="10%">{{ single[0]["HOST"]["ip"] }}</td>
+                <td width="25%">{{ single[0]["PLATFORM"]["platform"] }}</td>
+                <td width="40%">{{ single[0]["UNILIZATION_RATIO"] }}</td>
+                <td width="10%" style="text-align: center;">
+                    <a id="resource_{{ single[1] }}" onclick="showDetail(this,'showDetail')">
+                        <span style="cursor: pointer"><i class="glyphicon glyphicon-book"></i> 资源详情</span>
+                    </a>
+                    <a id="work_{{ single[1] }}" onclick="showservice_work(this,'showservice_work')">
+                        <span style="cursor: pointer"><i class="glyphicon glyphicon-book"></i> 业务详情</span>
+                    </a>
+                </td>
+                {#           <td style="text-align: center;"><a id="{{ contact.id }}" onclick="showDetail(this,'showDetail')"><span style="cursor: pointer"><i class="glyphicon glyphicon-book"></i> Detail</span></a></td>#}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% import "paginate.html" as macros %}
+    {%if pagination%}
+        {{ macros.pagination_widget(pagination, 'push.machine', resource) }}
+    {% endif %}
+
+    <div class="modal fade" id="showDetail" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
+    </div>
+
+    <div class="modal fade" id="showservice_work" tabindex="-1" role="dialog" aria-labelledby="myModalwork" aria-hidden="false">
+    </div>
+
+    <script type="text/javascript">
+
+        function change_name(obj) {
+            id = $(obj).prev().attr("id");
+            alias_value = document.getElementById(id).value
+            console.log(id)
+            console.log(alias_value)
+            $.post('http://192.168.52.143:5000/machineDB',
+                {
+                    alias: alias_value,
+                    id: id,
+                },
+                function () {
+                    window.location.reload()
+                })
+        }
+
+        function div_show(obj) {
+            id = $(obj).next().attr("id");
+            var div = document.getElementById(id);
+            div.style.display = "block";
+        }
+
+
+        {#        $(document).ready(function () {#}
+        {##}
+        {#            $("[data-toggle='popover']").popover();#}
+        {##}
+        {#        })#}
+
+
+        {#        $('#editable').DataTable({#}
+        {#            'bDestory': true,#}
+        {#            "language": {#}
+        {#                "lengthMenu": "机器列表",#}
+        {#//        "lengthMenu": "每页 _MENU_ 条记录",#}
+        {#                "zeroRecords": "没有找到记录",#}
+        {#                "sInfo": "第 _PAGE_ 页 ( 总共 _PAGES_ 页 ),显示第 _START_ 至 _END_ 项(总共 _TOTAL_ 项)",#}
+        {#                "sInfo": "",#}
+        {#                "infoEmpty": "无记录",#}
+        {#                "infoFiltered": "(从 _MAX_ 条记录过滤)",#}
+        {#                "infoFiltered": "",#}
+        {#                "sSearch": "搜索:",#}
+        {#                "oPaginate": false,#}
+        {#                "oPaginate": {#}
+        {#                    "sFirst": "首页",#}
+        {#                    "sPrevious": "上一页",#}
+        {#                    "sNext": "下一页",#}
+        {#                    "sLast": "末页"#}
+        {#                }#}
+        {#            },#}
+        {#        });#}
+
+        {#        window.onunload = load()#}
+        {##}
+        {#        function load() {#}
+        {#            hint_pagin();#}
+        {#        }#}
+        {#        function hint_pagin() {#}
+        {#            var hint = document.getElementById("editable_paginate");#}
+        {#            hint.style.display = "none";#}
+        {#        }#}
+
+
+
+        {#    </script>#}
+        {#    <script type="text/javascript">#}
+        function showDetail(obj, modalid){
+            var id = $(obj).attr("id").split("_")[1];
+            console.log(id)
+            {% for line in resource %}
+                var ids = "{{ line[1] }}"
+                console.log(ids)
+
+                if (id==ids) {
+                    var Disk_usage = "{{ line[0]["DISK_USAGE"] }}".replace(/\?/g,"<br>")
+                    var modalhtml = '<div class="modal-dialog" style="width:1200px; height:auto;">' +
+                        '<div class="modal-content">' +
+
+                        '<div class="modal-header">' +
+                        '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">' +
+                        '&times; </button>' +
+                        '<h4 class="modal-title" id="myModalLabel">机器详细信息</h4>' +
+                        '</div>' +
+
+                        '<div class="modal-body">' +
+                        '<h4>资源信息</h4>' +
+                        '<div class="col-sm-12">' +
+
+                        '<table class="form-group">' +
+                        '<tr height="50px">' +
+                        '<td align="right" class="col-sm-1" style="color:  #6495ed;">PLATFORM:</td>' +
+                        '<td class="col-sm-11" id="platformid" class="form-control" name="platform">{{ line[0]["PLATFORM"]["platform"] }},{{ line[0]["PLATFORM"]["uname"] }}</td>' +
+                        '</tr>' +
+
+                        '<tr height="50px">' +
+                        '<td align="right" class="col-sm-1" style="color:  #6495ed;">CPU:</td>' +
+                        '<td class="col-sm-11" id="cpuid" class="form-control" name="cpu">{{ line[0]["CPU_USAGE"] }}</td>' +
+                        '</tr>' +
+                        '<tr height="50px">' +
+                        '<td align="right" class="col-sm-1" style="color: #6495ed;">MEM:</td>' +
+                        '<td class="col-sm-11" id="memid" class="form-control" name="mem">{{ line[0]["MEM_USAGE"] }}</td>' +
+                        '</tr>' +
+                        '<tr height="50px">' +
+                        '<td align="right" class="col-sm-1" style="color: #6495ed;">SWAP:</td>' +
+                        '<td class="col-sm-11" id="swapid" class="form-control" name="swap">{{ line[0]["SWAP_USAGE"] }}</td>' +
+                        '</tr>' +
+                        '<tr height="50px">' +
+                        '<td align="right" class="col-sm-1" style="color: #6495ed;">DISK:</td>' +
+                        {#                        '<td class="col-sm-11" id="diskid" class="form-control" name="disk">{{ line[0]["DISK_USAGE"] }}</td>' +#}
+                        '<td colspan="8" id="descriptionid" name="description">' +
+                        '<div style="max-height: 300px; overflow-y: scroll">'+ Disk_usage +'</div>' +
+                        '</td>' +
+                        '</tr>' +
+                        '<tr height="50px">' +
+                        '<td align="right" class="col-sm-1" style="color: #6495ed;">LOAD:</td>' +
+                        '<td class="col-sm-11" id="loadid" class="form-control" name="load">{{ line[0]["LOAD_AVG"] }}</td>' +
+                        '</tr>' +
+                        '</table>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="modal-footer" >' +
+                        '</div>' +
+                        '</div>';
+                    $("#"+modalid).html(modalhtml);
+                    $("#"+modalid).modal("show");
+                }
+            {% endfor %}
+        }
+
+
+        function showservice_work(obj, modalid){
+            var id = $(obj).attr("id").split("_")[1];
+            console.log(id)
+            {% for line in resource %}
+                var ids = "{{ line[1] }}"
+                console.log(ids)
+                var Details = "{{ line[0] }}";
+                if (id==ids) {
+                    html = ""
+                    var ll = "{{ line[0]["SERVICE_INFO"] }}".replace(/&#39;/g,'"').replace(/\n/,"<br>").replace(/\r/,"");
+                    ll = JSON.parse(ll)
+                    for (var key in ll){
+                        html += '<tr height="50px">' +
+                        '<td align="right" style="color: #6495ed;" class="col-sm-6" id="serviceid" name="service">'+ ll[key] +'</td>' +
+                        '<td align="right" style="color: red" class="col-sm-2" id="portid" name="port">'+ key +'</td>' +
+                        '</tr>';
+                    }
+
+                    var modalhtml = '<div class="modal-dialog" style="width:800px; height:auto;">' +
+                        '<div class="modal-content">' +
+
+                        '<div class="modal-header">' +
+                        '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">' +
+                        '&times; </button>' +
+                        '<h4 class="modal-title" id="myModalwork">服务器详细信息</h4>' +
+                        '</div>' +
+
+                        '<div class="modal-body">' +
+                        '<h4>服务或业务信息</h4>' +
+                        '<div class="col-sm-12">' +
+
+                        '<table class="form-group">'+ html +
+
+                        '</table>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="modal-footer" >' +
+                        '</div>' +
+                        '</div>';
+                    $("#"+modalid).html(modalhtml);
+                    $("#"+modalid).modal("show");
+                }
+            {% endfor %}
+        }
+    </script>
+{% endblock %}
+
+

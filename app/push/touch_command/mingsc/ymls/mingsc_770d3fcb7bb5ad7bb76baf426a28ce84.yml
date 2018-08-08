@@ -1,0 +1,12 @@
+tasks:
+    - file: path=/opt/cmdb_agent state=directory
+    - unarchive: src=/home/mingsc/cmdb/app/ansible_api/cmdb_client/cmdb_agent.tar.gz dest=/opt/cmdb_agent mode="777"
+    - cron: minute=*/1 user=root job="python /opt/cmdb_agent/resource_info.py"
+    - shell: cp -rp /tmp/xx.yaml /opt/xx.yaml
+    - apt: name=lsof state=latest
+    - apt: name=python-pip state=installed
+    - yum: name=lsof state=latest
+    - yum: name=python-pip state=installed
+    - pip: name=psutil
+    - pip: name=ansible
+    - pip: name=requests

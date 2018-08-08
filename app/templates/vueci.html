@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}machine{% endblock %}
+
+{% block head %}
+    {% block styles %}
+        {{ super() }}
+        <style>
+            .btn {
+                font-weight: 1000;
+            }
+            .form-control {
+                width: 80%;
+            }
+            body {
+                background-color: lavender;
+            }
+
+            .modal-content {
+                border-radius: 56px;
+            }
+        </style>
+    {% endblock styles %}
+    {% block scripts %}
+        {{ super() }}
+{#        <script src="js/main.js"></script>#}
+         <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% endblock scripts %}
+
+{% endblock head %}
+
+{% block content %}
+
+    <div id="log">
+    </div>
+
+    <script type="text/javascript">
+
+{#        new Vue({#}
+{#            el : '#app',#}
+{#            data : {#}
+{#            },#}
+{#            methods:{#}
+{#                get:function(){#}
+{#                    this.$http.get('/getData').then((response) => {#}
+{#                        console.log(response);#}
+{#                    alert(response.data);#}
+{#                },function(){#}
+{#                        alert('请求失败！');#}
+{#                    });#}
+{#                }#}
+{#            }#}
+{#        });#}
+    </script>
+{% endblock %}
+
+

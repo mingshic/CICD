@@ -1,0 +1,484 @@
+{% extends "base.html" %}
+{% block title %}Deploy{% endblock %}
+
+{% block head %}
+    {% block styles %}
+        {{ super() }}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/deployment.css') }}">
+    {% endblock styles %}
+    {% block scripts %}
+        {{ super() }}
+        <script type="text/javascript" src="{{ url_for('static', filename='js/deployment.js') }}"></script>
+    {% endblock scripts %}
+    <style>
+        .btn-primary{
+            background-color: lightseagreen;
+        }
+        .btn {
+            font-weight: 1000;
+        }
+        .form-control {
+            width: 80%;
+        }
+        body {
+            background-color: lavender;
+        }
+
+        .col-sm-12 {
+            width: 56%
+        }
+
+    </style>
+
+{% endblock head %}
+
+{% block content %}
+    <div>
+        <div>
+            <div class="form-horizontal">
+                <div class="form-group">
+                    <div id="select_sourceSection" ondblclick="doubleclick_sourcelist()" class="col-sm-4">
+                        {#                    <label class="col-sm-2 control-label">目标机器</label>#}
+                        {#                    <select id="select_identity" class="col-sm-2 form-control">#}
+                        {#                    </select>#}
+                        <label for="classify" class="col-sm-1 control-label"></label>
+                        <div class="col-sm-3 text-right">
+                            <select class="selectpicker form-control" data-live-search="true" id="select_source">
+                            </select>
+                        </div>
+                    </div>
+
+
+
+                    <div id="select_ciSection" ondblclick="doubleclick_ci()" class="col-sm-4">
+                        {#                    <label class="col-sm-2 control-label">执行场景</label>#}
+                        {#                <select id="select_scene" class="form-control">#}
+                        {#                </select>#}
+                        <label for="classify" class="control-label"></label>
+                        <div class="col-sm-3">
+                            <select class="selectpicker form-control" data-live-search="true" id="select_ci">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {#        <HR style="FILTER: progid:DXImageTransform.Microsoft.Shadow(color:#987cb9,direction:145,strength:15)" width="80%" color=#987cb9 SIZE=10>#}
+        {#    <HR style="FILTER: alpha(opacity=100,finishopacity=0,style=2)" width="80%" color=#987cb9 SIZE=10>#}
+        <hr width=80% size=3 color=#5151A2 style="border:double white">
+        <div class="container-fluid">
+            <div class="col-sm-12">
+                <div id="source_form" class="iden_com">
+                </div>
+            </div>
+            <div class="col-sm-12"></div>
+            <div class="col-sm-12">
+                <div id="ci_form" class="iden_com">
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <hr width=60% size=3 color=#5151A2 style="border:double white">
+            <div class="col-sm-12 text-right">
+                <button type="submit" class="btn btn-primary" onclick="run()">Run</button>
+            </div>
+        </div>
+        <br>
+        <br>
+        {#    </div>#}
+        <hr width=100% size=3 color=#5151A2 style="border:double white">
+
+        <div class="col-sm-6" style="position: fixed;">
+            <table class="table table-hover table-bordered table-condensed table-striped nowrap-table" id="editable">
+                <thead class="table-bordered">
+                <tr>
+                    <th>job_id</th>
+                    <th>源类型</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for single in pagination.items %}
+                    <tr>
+                        <td width="15%"><button id="{{ single.log_path }}" class="btn btn-warning" style="width:400px" onclick="job(this)">{{ single.log_path.split("/")[-1] }}</button></td>
+                        <td width="85%">{{ single.source }}</td>
+                        {#           <td style="text-align: center;"><a id="{{ contact.id }}" onclick="showDetail(this,'showDetail')"><span style="cursor: pointer"><i class="glyphicon glyphicon-book"></i> Detail</span></a></td>#}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% import "ci_paginate.html" as macros %}
+            {%if pagination%}
+                {{ macros.pagination_widget(pagination, 'ci.ci_jobs') }}
+            {% endif %}
+
+        </div>
+        <div id="job_log" class="col-sm-6" style="width: 900px; height: auto; overflow-x:auto; background-color: lightgray; float:right">
+        </div>
+    </div>
+
+    {#    <div id="job_log" class="col-sm-6" style="width: 600px; height: auto; overflow-x:auto; background-color: lightgray">#}
+    {##}
+    {#    </div>#}
+
+    <script type="text/javascript">
+        function doubleclick_sourcelist(){
+            document.getElementById("source_form").innerHTML='<div class="form-group col-sm-12">' +
+                {#                '<textarea class="form-control" id="source" name="source" placeholder="" cols="50" rows="10">' +#}
+                {#                '</textarea>' +#}
+                '<input class="form-control" id="source" name="source" placeholder="">' +
+                '<button class="btn btn-primary" onclick="add_source()">add</button>' +
+                '</div>';
+        }
+
+
+        function add_source(){
+            var response_data = []
+            data = document.getElementById("source").value
+            $.post('http://192.168.52.143:5000/ci',
+                {
+                    source: data,
+                    item: "1"
+                },
+                function () {
+                    {#                    identity = data.split("\n")[0]#}
+
+                    source, latest_id = loadselect_source()
+                    response_data.push(source)
+                    source_id = "source_"+latest_id
+                    var obj = document.getElementById("select_source");
+                    for (i=0;i<obj.length;i++) {
+                        if (obj[i].value == source_id) {
+                            {#                            obj[i].selected = true;#}
+                            $('#select_source').selectpicker('refresh');
+                            $('#select_source').selectpicker('val', obj[i].value);
+                            loadsingle_source(response_data, obj[i].value, "#source_form")
+                        }
+                    }
+                })
+        }
+
+        function update_source(obj, if_update){
+            data = "";
+            if (if_update==true) {
+                var before_id = $(obj).prev().attr("id");
+                data = document.getElementById(before_id).value;
+            }
+            else if (if_update==false) {
+                var before_id = $(obj).prev().prev().prev().attr("id");
+                data = document.getElementById(before_id).value;
+            }
+            $.post('http://192.168.52.143:5000/ci',
+                {
+                    if_update: if_update,
+                    id: before_id,
+                    source: data,
+                    item: "2"
+                },
+                function (data) {
+                    var obj_1 = document.getElementById("select_source");
+                    {#                    identity, hostlist, latest_id = #}
+                    console.log(obj_1)
+                    alert(111)
+                    for (var i=0;i<obj_1.length;i++) {
+                        if (obj_1[i].value == before_id) {
+                            loadselect_source()
+                            try {
+                                $('#select_source').selectpicker('refresh');
+                                $('#select_source').selectpicker('val', obj_1[i].value);
+                            }
+
+                            catch(err) {
+                                console.log("have already delete")
+                            }
+                            {#                            obj_1[i].selected = true;#}
+                        }
+                    }
+
+
+                    {#                    loadsingle_identity(response_data, obj[i].value, "#identity_form")#}
+                })
+        }
+
+
+        function doubleclick_ci(){
+            document.getElementById("ci_form").innerHTML='<div class="form-group col-sm-12">' +
+                '<input class="form-control" id="ci_input" name="ci">' +
+                '<textarea class="form-control" id="jobs" name="ci_jobs" placeholder="" cols="50" rows="10">' +
+                '</textarea>' +
+                '<button class="btn btn-primary" onclick="add_ci()">add</button>' +
+                '</div>';
+        }
+
+
+        function add_ci(){
+            var response_data = []
+            job_value = document.getElementById("ci_input").value
+            data = document.getElementById("jobs").value
+            $.post('http://192.168.52.143:5000/ci',
+                {
+                    job_name: job_value,
+                    jobs: data,
+                    item: "1"
+                },
+                function () {
+                    job_name, ci_jobs, latest_id = loadselect_ci()
+                    response_data.push(job_name)
+                    response_data.push(ci_jobs)
+                    ci_id = "ci_"+latest_id
+                    var obj = document.getElementById("select_ci");
+                    for (i=0;i<obj.length;i++) {
+                        if (obj[i].value == ci_id) {
+                            {#                            obj[i].selected = true;#}
+                            $('#select_ci').selectpicker('refresh');
+                            $('#select_ci').selectpicker('val', obj[i].value);
+                            loadsingle_ci(response_data, obj[i].value, "#ci_form")
+                        }
+                    }
+                })
+        }
+
+        function update_ci(obj, if_update){
+            data = "";
+            if (if_update==true) {
+                var before_id = $(obj).prev().attr("id");
+                data = document.getElementById(before_id).value;
+            }
+            else if (if_update==false) {
+                var before_id = $(obj).prev().prev().prev().attr("id");
+                data = document.getElementById(before_id).value;
+            }
+            {#            scene_value = $("#scene_input").text()#}
+            job_value = document.getElementById("ci_input").value
+            $.post('http://192.168.52.143:5000/ci',
+                {
+                    if_update: if_update,
+                    job_name: job_value,
+                    id: before_id,
+                    jobs: data,
+                    item: "2"
+                },
+                function (data) {
+                    var obj_1 = document.getElementById("select_ci");
+                    {#                    identity, hostlist, latest_id = #}
+                    for (var i=0;i<obj_1.length;i++) {
+                        if (obj_1[i].value == before_id) {
+                            loadselect_ci()
+                            try {
+                                $('#select_ci').selectpicker('refresh');
+                                $('#select_ci').selectpicker('val', obj_1[i].value);
+                            }
+                            catch(err) {
+                                console.log("have already delete")
+                            }
+                            {#                            obj_1[i].selected = true;#}
+                        }
+                    }
+                })
+        }
+
+        {#是否显示        #}
+        {#        function display_hostlist() {#}
+        {#            document.getElementById('hostlist_form').style.display='none';#}
+        {#        }#}
+        {#        function command_parameter() {#}
+        {#            document.getElementById('command_parameter_form').style.display='none';#}
+        {#        }#}
+        {#        var hostlist_info = document.getElementById('hostlist');#}
+        {#        var command_para_info = document.getElementById('command_parameter')#}
+
+
+        function edit_source(obj){
+            var prev_before_id = $(obj).prev().prev().attr("id")
+            var source_info = document.getElementById(prev_before_id);
+            source_info.disabled = false;
+        }
+        function edit_ci(obj){
+            var prev_before_id = $(obj).prev().prev().attr("id")
+            var ci_info = document.getElementById(prev_before_id);
+            ci_info.disabled = false;
+        }
+        function selectOnchang(obj){
+            var value = obj.options[obj.selectedIndex].value;
+            alert(value);
+        }
+
+        window.onunload = loadData();
+        function loadData() {
+            loadselect_source();
+            loadselect_ci();
+
+        }
+
+        function loadselect_source() {
+            latest = ""
+            $.ajax({
+                url: 'http://192.168.52.143:5000/source',
+                async: false,
+                type: "GET",
+                success: function (data) {
+                    latest = data.pop()
+                    source = data.pop()
+                    var select = $("#select_source");
+                    select.empty()
+                    select.append("<option>源码地址</option>")
+                    for (var i = 0; i < data.length; i++) {
+                        select.append("<option value=source_" + data[i][1] + ">" + data[i][0] + "</option>")
+                    }
+                }
+            })
+            return source, latest;
+        }
+
+        function loadselect_ci() {
+            latest = ""
+            $.ajax({
+                url: 'http://192.168.52.143:5000/ci_code',
+                async: false,
+                type: "GET",
+                success: function (data) {
+                    latest = data.pop()
+                    job_name = data.pop()
+                    ci_jobs = data.pop()
+                    var select = $("#select_ci");
+                    select.empty()
+                    select.append("<option>工作流</option>")
+                    for (var i = 0; i < data.length; i++) {
+                        select.append("<option value=ci_" + data[i][2] + ">" + data[i][0] + "</option>")
+                    }
+                }
+            })
+            return job_name, ci_jobs, latest;
+        }
+        $(document).ready(function () {
+            $("#select_source").change(function () {
+                var item = $(this).val();
+                console.log(item)
+                $.post('http://192.168.52.143:5000/source',
+                    {
+                        item: item
+                    },
+                    function (data) {
+                        loadsingle_source(data, item, "#source_form")
+
+                    }
+                )
+            })
+        })
+
+        function loadsingle_source(data, item, select_id) {
+            var source = $(select_id)
+            console.log(data,item,select_id)
+            source.empty()
+            source.append('<div class="form-group col-sm-12">' +
+                {#                '<textarea class="form-control" id='+ item +' name="source" placeholder="" cols="50" rows="12" disabled="disabled">' + data[0] + "\n" +data[1] +#}
+                {#                '</textarea>' +#}
+                '<input class="form-control" id='+ item +' name="source" placeholder="" disabled="disabled" value='+data[0]+'>' +
+                '<button class="btn btn-primary" onclick="update_source(this, true)">update</button>' +
+                '<button type="button" class="btn btn-primary" onclick="edit_source(this)">editor</button>' +
+                '<button class="btn btn-primary" onclick="update_source(this, false)">delete</button>' +
+                '</div>')
+
+        }
+
+        $(document).ready(function () {
+            $("#select_ci").change(function () {
+                var item = $(this).val();
+                console.log(item)
+                $.post('http://192.168.52.143:5000/ci_code',
+                    {
+                        item: item
+                    },
+                    function (data) {
+                        loadsingle_ci(data, item, "#ci_form")
+                    }
+                )
+            })
+        })
+
+
+        function loadsingle_ci(data, item, select_id) {
+            var ci = $(select_id)
+            console.log(data)
+            ci.empty()
+            ci.append('<div class="form-group col-sm-12">' +
+                '<input class="form-control" id="ci_input" name="ci_input" value='+ data[0] +'>' +
+                '<textarea class="form-control" id='+ item +' name="ci_textarea" placeholder="" cols="50" rows="10" disabled="disabled">' + data[1] +
+                '</textarea>' +
+                '<button class="btn btn-primary" onclick="update_ci(this, true)">update</button>' +
+                '<button type="button" class="btn btn-primary" onclick="edit_ci(this)">editor</button>' +
+                '<button class="btn btn-primary" onclick="update_ci(this, false)">delete</button>' +
+                '</div>')
+
+        }
+
+        function run() {
+            source = $("input[name='source']").val()
+            job_artifacts = $("textarea[name='ci_textarea']").val()
+            $.ajax({
+                url: 'http://192.168.52.143:5000/runner',
+                data: {
+                    item: "1",
+                    source: source,
+                    job_artifacts: job_artifacts,
+                },
+                async: true,
+                type: "POST",
+                success: function (data) {
+                    job_artifacts_filename = data["job_artifacts_filename"]
+                    log_directory = data["log_directory"]
+                    source_directory = data["source_directory"]
+                    run_source_ci_job(job_artifacts_filename, log_directory, source_directory)
+                    {#                    runner_jobs(log_directory)#}
+                }
+            })
+        }
+
+        function job(obj) {
+            id_to_path = $(obj).attr("id")
+            var log_trace_info = $("#job_log")
+            alert(id_to_path)
+            $.get('http://192.168.52.143:5000/job',
+                {
+                    log_directory: id_to_path,
+                },
+                function (data) {
+                    log = data["log"]
+                    log_trace_info.empty()
+                    for (var i=0;i<log.length;i++) {
+                        if (log[i][0] == "$") {
+                            command_info_split = log[i].split("command_info_split_point")
+                            console.log(command_info_split[0])
+                            log_trace_info.append('<br>' + '<span style="color: green">'+ command_info_split[0] + '</span>')
+                            log_trace_info.append('<br>' + command_info_split[1])
+                        }
+                        else if (log[i][0] != "$") {
+                            log_trace_info.append('<br>' + log[i])
+                        }
+                        {#                    console.log(log_trace_info)#}
+                    }
+                })
+
+        }
+
+        function run_source_ci_job(job_artifacts_filename, log_directory, source_directory) {
+            $.ajax({
+                url: 'http://192.168.52.143:5000/runner',
+                data: {
+                    item: "2",
+                    job_artifacts_filename: job_artifacts_filename,
+                    log_directory: log_directory,
+                    source_directory: source_directory,
+                },
+                async: true,
+                type: "POST",
+                success: function (data) {
+                    console.log(data)
+                }
+            })
+        }
+    </script>
+{% endblock %}
+
+

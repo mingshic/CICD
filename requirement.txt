@@ -1,0 +1,9 @@
+flask
+flask_script
+flask_bootstrap
+flask_sqlalchemy
+pymysql
+flask_wtf
+ansible
+flask_migrate
+

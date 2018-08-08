@@ -1,0 +1,17 @@
+stages:
+  - build1
+  - build2
+
+job1:
+  stage: build1
+  script:
+    - uname -a
+    - uptime
+    - date
+
+job2:
+  stage: build2
+  script:
+    - uname -a
+    - uptime
+    - date && uptime

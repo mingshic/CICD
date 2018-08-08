@@ -1,0 +1,9 @@
+{% block body %}
+  <h2>Login</h2>
+  <form method=post>
+      <h3>host: {{ form.push_host }}</h3>
+      <h3>mode: {{ form.push_mode }}</h3>
+      <h3>parameter: {{ form.push_parameter }}</h3>
+      <h3>{{ form.submit() }}</h3>
+  </form>
+{% endblock %}

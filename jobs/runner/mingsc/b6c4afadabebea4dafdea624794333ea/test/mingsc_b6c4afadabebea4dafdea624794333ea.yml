@@ -1,0 +1,9 @@
+stages:
+  - build
+job1:
+  stage: build
+  script:
+    - uname -a
+    - uptime && date
+    - df -h
+    - python test.py

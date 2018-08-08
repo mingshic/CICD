@@ -1,0 +1,44 @@
+Cloning into 'test'...
+$ uname -acommand_info_split_pointLinux ubuntu 4.4.0-87-generic #110-Ubuntu SMP Tue Jul 18 12:55:35 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
+$ uptime && datecommand_info_split_point22:54:27 up  1:04,  2 users,  load average: 0.10, 0.05, 0.01
+Thu Jun  7 22:54:27 EDT 2018
+$ df -hcommand_info_split_pointFilesystem                   Size  Used Avail Use% Mounted on
+udev                         587M     0  587M   0% /dev
+tmpfs                        122M  6.0M  116M   5% /run
+/dev/mapper/ubuntu--vg-root   35G   14G   20G  40% /
+tmpfs                        608M  132K  608M   1% /dev/shm
+tmpfs                        5.0M  4.0K  5.0M   1% /run/lock
+tmpfs                        608M     0  608M   0% /sys/fs/cgroup
+/dev/sda1                    472M   62M  386M  14% /boot
+tmpfs                        122M   16K  122M   1% /run/user/123
+tmpfs                        122M     0  122M   0% /run/user/1000
+$ python api.pycommand_info_split_point{
+    "192.168.52.129": {
+        "delta": "0:00:00.011521",
+        "rc": 0,
+        "cmd": "cat /etc/redhat-release",
+        "stderr_lines": [],
+        "end": "2018-06-07 21:08:12.585728",
+        "stdout_lines": [
+            "CentOS Linux release 7.2.1511 (Core) "
+        ],
+        "changed": true,
+        "stderr": "",
+        "_ansible_no_log": false,
+        "stdout": "CentOS Linux release 7.2.1511 (Core) ",
+        "start": "2018-06-07 21:08:12.574207",
+        "invocation": {
+            "module_args": {
+                "removes": null,
+                "_uses_shell": true,
+                "warn": true,
+                "executable": null,
+                "chdir": null,
+                "_raw_params": "cat /etc/redhat-release",
+                "creates": null,
+                "stdin": null
+            }
+        },
+        "_ansible_parsed": true
+    }
+}
